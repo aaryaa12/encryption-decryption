@@ -1,0 +1,166 @@
+#Arya Sanjhawa Prajapati (230053)
+import math
+
+GREEN = "\033[0;32m"
+BLUE = "\033[0;34m"
+RED = "\033[0;31m"
+RESET = "\033[0m"
+
+# Global variables
+x, y, n, t, i, flag = 0, 0, 0, 0, 0, 0
+p, q, temp, j = 0, 0, [], 0
+e, d, m, cipher = [], [], [], []
+
+# Function to check if a number is prime
+def is_prime(pr):
+    if pr <= 1:
+        return False
+    for i in range(2, int(math.sqrt(pr)) + 1):
+        if pr % i == 0:
+            return False
+    return True
+
+# Function to generate RSA keys
+def generate_keys():
+    k = 0
+    global n, t, e, d, p, q
+
+    n = p * q
+    t = (p - 1) * (q - 1)
+
+    for i in range(2, t):
+        if t % i == 0:
+            continue
+
+        if is_prime(i) and i != p and i != q:
+            e.append(i)
+            flag = calculate_d(e[k])
+
+            if flag > 0:
+                d.append(flag)
+                k += 1
+
+            if k == 99:
+                break
+
+# Function to calculate d for given a
+def calculate_d(a):
+    k = 1
+    while True:
+        k = k + t
+        if k % a == 0:
+            return k // a
+
+def encrypt(password):
+    global n, m, e
+
+    input_pass = input(GREEN + "\nEnter password for encryption: " + RESET)
+
+    if input_pass != password:
+        print(RED + "Invalid password. Exiting..." + RESET)
+        exit(0)
+
+    len_cc = int(input(GREEN + "Enter the length of the credit card number: " + RESET))
+    card_number = input(GREEN + "Enter the credit card number: " + RESET)
+
+    len_cc = len(card_number)
+    m = [int(ch) for ch in card_number]
+
+    print()
+
+    key = int(input(GREEN + "Enter the public key (e): " + RESET))
+    if key not in e:
+        print(RED + "Invalid public key. Exiting..." + RESET)
+        exit(0)
+
+    print("Encrypted Credit Card Number:", end=" ")
+    for i in range(len_cc):
+        pt, ct, k = m[i], 1, 1
+
+        for j in range(key):
+            k = k * pt
+            k = k % n
+
+        temp.append(k)
+        ct = k
+        print(ct, end=" ")
+
+    print()
+
+def decrypt(password):
+    global n, cipher, d
+
+    input_pass = input(GREEN + "\nEnter password for decryption: " + RESET)
+
+    if input_pass != password:
+        print(RED + "Invalid password. Exiting..." + RESET)
+        exit(0)
+
+    len_cipher = int(input(GREEN + "Enter the length of the cipher: " + RESET))
+    print(GREEN + "Enter the cipher: " + RESET, end="")
+    cipher = [int(num) for num in input().split()]
+
+    print("\nDecrypted Credit Card Number:", end=" ")
+    for i in range(len_cipher):
+        pt, ct, key, k = 0, cipher[i], d[0], 1
+
+        for j in range(key):
+            k = k * ct
+            k = k % n
+
+        pt = k
+        print(pt, end=" ")
+
+    print()
+
+if __name__ == "__main__":
+    print(GREEN + "\n========== Credit Card Encryption and Decryption ===========" + RESET)
+    print(BLUE + "**Note: This is a simulation. Do NOT enter real credit card information!**\n" + RESET)
+
+    while True:
+        p = int(input(GREEN + "Enter first prime number (p): " + RESET))
+        if not is_prime(p):
+            print(RED + "INVALID INPUT. Please enter a prime number." + RESET)
+            continue
+        break
+
+    while True:
+        q = int(input(GREEN + "Enter second prime number (q): " + RESET))
+        if not is_prime(q) or p == q:
+            print(RED + "INVALID INPUT. Please enter a prime number different from the first one." + RESET)
+            continue
+        break
+
+    generate_keys()
+    password = input(GREEN + "\nCreate password: " + RESET)
+
+    auth_password = input(GREEN + "\nConfirm password: " + RESET)
+
+    if auth_password != password:
+        print(RED + "Password does not match. Exiting..." + RESET)
+        exit(0)
+
+    print("\nPublic Key(s):")
+    for i, key in enumerate(e):
+        print(f"e[{i}]: {key}")
+
+    print("\nPrivate Key(s):")
+    for i, key in enumerate(d):
+        print(f"d[{i}]: {key}")
+
+    while True:
+        print("\nChoose an option:")
+        print("1. Encrypt Credit Card Number")
+        print("2. Decrypt Credit Card Number")
+        print("0. Exit")
+        option = int(input(GREEN + "Enter your choice: " + RESET))
+
+        if option == 1:
+            encrypt(password)
+        elif option == 2:
+            decrypt(password)
+        elif option == 0:
+            print("Exiting program...")
+            exit(0)
+        else:
+            print(RED + "**Invalid option** Please try again!!." + RESET)
